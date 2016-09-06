@@ -1,0 +1,13 @@
+/vis/open OGLSQt
+
+/BGMSC/det/setSlabMaterial Lead
+/BGMSC/det/setSlabThickness 35.26
+/run/reinitializeGeometry
+
+/vis/drawVolume
+
+/vis/scene/add/trajectories
+/vis/scene/endOfEventAction accumulate
+
+/run/beamOn 100
+
