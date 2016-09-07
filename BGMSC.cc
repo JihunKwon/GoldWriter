@@ -59,6 +59,7 @@ int main(int argc,char** argv)
     runManager->SetUserInitialization(actionInit);
     runManager->Initialize();
 
+    G4UImanager* UImanager = G4UImanager::GetUIpointer();
 
 #ifdef G4VIS_USE
     G4UIExecutive* ui = new G4UIExecutive(argc, argv);
@@ -71,7 +72,7 @@ int main(int argc,char** argv)
 
 #endif
 
-    runManager->BeamOn(100);
+    runManager->BeamOn(100000);
 
     delete runManager;
     return 0;

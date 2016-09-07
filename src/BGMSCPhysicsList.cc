@@ -25,6 +25,9 @@
 #include "G4EmParameters.hh"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "G4WentzelVIModel.hh"
+#include "G4EmLivermorePhysics.hh"
+#include "G4EmLowEPPhysics.hh"
+#include "G4EmPenelopePhysics.hh"
 
 using namespace CLHEP;
 
@@ -53,7 +56,7 @@ BGMSCPhysicsList::BGMSCPhysicsList() : G4VModularPhysicsList()
 
   SetVerboseLevel(1);
 
-  RegisterPhysics(new G4EmStandardPhysics_option4);
+  RegisterPhysics(new G4EmPenelopePhysics);
   // RegisterPhysics(new PhysListEmStandardSingleSc);
   RegisterPhysics(new G4HadronPhysicsQGSP_BIC);
   RegisterPhysics(new G4EmExtraPhysics);

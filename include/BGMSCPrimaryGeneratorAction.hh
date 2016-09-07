@@ -5,6 +5,7 @@
 #include "G4SPSPosDistribution.hh"
 #include "G4Types.hh"
 #include "G4ParticleGun.hh"
+#include "G4SingleParticleSource.hh"
 
 class G4Event;
 
@@ -18,7 +19,7 @@ public:
     void GeneratePrimaries(G4Event* event);
 
 private:
-    G4ParticleGun* Source;
+     G4SingleParticleSource* CircleSource;
 };
 
 #endif

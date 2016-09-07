@@ -25,7 +25,9 @@ void BGMSCRunAction::BeginOfRunAction(const G4Run* aRun)
 {
     G4cout << "### Run " << aRun->GetRunID() << " start." << G4endl;
     G4IAEAphspWriter* Writer = G4IAEAphspWriter::GetInstance();
-    Writer->SetZStop(10*nm);
+    Writer->SetZStop(-20*cm);
+    std::vector<double>* a = Writer->GetZStopVector();
+    G4cout << "Zstop vector " << (*a)[2]; // << " " << Writer->GetZStopVector()[1] << " " << Writer->GetZStopVector()[2] << G4endl;
     Writer->BeginOfRunAction(aRun);
 }
 
