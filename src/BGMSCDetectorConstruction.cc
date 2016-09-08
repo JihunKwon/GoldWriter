@@ -47,14 +47,15 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     G4LogicalVolume *worldLogic = new G4LogicalVolume(world, vacuum, "WorldLogic");
     G4VPhysicalVolume *worldPhys = new G4PVPlacement(0, G4ThreeVector(), worldLogic, "WorldPhys", 0, false, 0);
     worldLogic->SetVisAttributes(visAttributes);
-    G4Sphere *nanoPart = new G4Sphere("NanoPart", 0, 10*cm, 0*deg, 360*deg, 0*deg, 180*deg);
+
+    G4Sphere *nanoPart = new G4Sphere("NanoPart", 0, 10*nm, 0*deg, 360*deg, 0*deg, 180*deg);
     G4LogicalVolume *nanoPartLogic = new G4LogicalVolume(nanoPart, Au, "NanoPartLogic");
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), nanoPartLogic, "NanoPartPhys", worldLogic, 0, 0);
     nanoPartLogic->SetVisAttributes(visAttributes);
 
-    G4Box* test = new G4Box("test", 3*m, 3*m, 1*cm);
+    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
     G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
-    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0,0,-20*cm), testLogic, "testPhys", worldLogic, false, 0);
+    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
     testLogic->SetVisAttributes(visAttributes);
 
     return worldPhys;

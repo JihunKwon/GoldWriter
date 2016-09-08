@@ -41,7 +41,7 @@ BGMSCPhysicsList::BGMSCPhysicsList() : G4VModularPhysicsList()
 
   G4EmParameters* emParameters = G4EmParameters::Instance();
   emParameters->SetMinEnergy(0*eV);
-  emParameters->SetMaxEnergy(200*MeV);
+  emParameters->SetMaxEnergy(10*MeV);
   emParameters->SetNumberOfBinsPerDecade(50);
 
 //  emParameters->SetMuHadLateralDisplacement(true);
