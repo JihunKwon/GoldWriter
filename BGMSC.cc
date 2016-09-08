@@ -72,7 +72,7 @@ int main(int argc,char** argv)
 
 #endif
 
-    runManager->BeamOn(100000);
+    runManager->BeamOn(1000000);
 
     delete runManager;
     return 0;

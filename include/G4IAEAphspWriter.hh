@@ -59,6 +59,9 @@
 
 #include "G4ThreeVector.hh"
 #include "globals.hh"
+#include "globals.hh"
+#include "G4UnitsTable.hh"
+#include "G4SystemOfUnits.hh"
 
 #include <set>
 #include <vector>
@@ -90,6 +93,7 @@ private:
 
 public:
   void SetZStop(G4double zstop);
+  void SetRadius(G4double R);
   void UpdateHeaders();
 
 public: // GET-SET methods
@@ -137,6 +141,7 @@ private: // DATA MEMBERS
   G4ThreeVector preR;
   G4ThreeVector postR;
   // Current pre- and post-step points
+  G4double Raduis;
 
 };
 
