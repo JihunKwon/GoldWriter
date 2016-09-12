@@ -258,7 +258,7 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
     G4double rStop = (*theRStopVector)[i];
 
     if ((aStep->GetTrack()->GetVolume()->GetName() == "NanoPartPhys")&&
-        (aStep->IsLastStepInVolume()) && (i < size))
+        (aStep->IsLastStepInVolume()) && (i < size))//&& (aStep->GetTrack()->GetParticleDefinition()->GetParticleName() == "proton"))
     {
 
         // Check that this track has not crossed the
