@@ -44,6 +44,9 @@ BGMSCPrimaryGeneratorAction::~BGMSCPrimaryGeneratorAction()
 
 void BGMSCPrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
+   // CircleSource->SetNumberOfParticles(3);
    //  Source->GeneratePrimaryVertex(event);
-    CircleSource->GeneratePrimaryVertex(event);
+//
+        CircleSource->GeneratePrimaryVertex(event);
+
 }

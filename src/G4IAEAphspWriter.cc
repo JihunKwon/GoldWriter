@@ -74,6 +74,7 @@ G4IAEAphspWriter * G4IAEAphspWriter::GetInstance()
 #include "globals.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
+#include "G4GeometryTolerance.hh"
 
 #include "iaea_phsp.hh"
 
@@ -88,7 +89,7 @@ G4IAEAphspWriter * G4IAEAphspWriter::GetInstance()
 G4IAEAphspWriter::G4IAEAphspWriter()
 {
     theFileName = "PSF";  // default name
-    theZStopVector = new std::vector<G4double>;
+    theRStopVector = new std::vector<G4double>;
     theIncrNumberVector = new std::vector<G4int>;
     thePassingTracksVector = new std::vector< std::set<G4int>* >;
     theFilesAlreadyOpen = 0;
@@ -97,7 +98,7 @@ G4IAEAphspWriter::G4IAEAphspWriter()
 
 G4IAEAphspWriter::~G4IAEAphspWriter()
 {
-    if (theZStopVector) delete theZStopVector;
+    if (theRStopVector) delete theRStopVector;
     if (theIncrNumberVector) delete theIncrNumberVector;
     if (thePassingTracksVector) delete thePassingTracksVector;
 }
@@ -106,16 +107,9 @@ G4IAEAphspWriter::~G4IAEAphspWriter()
 //==================================================
 // void G4IAEAphspWriter::SetZStop(G4double zstop)
 //==================================================
-void G4IAEAphspWriter::SetZStop(G4double zstop)
-{
-    theZStopVector->push_back(zstop);
-    G4cout << "Registered phase-space plane z = " << zstop/mm
-           << " mm." << G4endl;
-}
-
 void G4IAEAphspWriter::SetRadius(G4double R)
 {
-    theZStopVector->push_back(R);
+    theRStopVector->push_back(R);
     G4cout << "Registered phase-space plane R = " << R/mm
            << " mm." << G4endl;
 }
@@ -128,8 +122,8 @@ void G4IAEAphspWriter::BeginOfRunAction(const G4Run* aRun)
 {
     // Sort the Zstops from lower to higher in order to optimize
     // the 'while' loop at UserSteppingAction.
-    std::sort(theZStopVector->begin(), theZStopVector->end());
-    G4int sizeVector = theZStopVector->size();
+    std::sort(theRStopVector->begin(), theRStopVector->end());
+    G4int sizeVector = theRStopVector->size();
 
     theIncrNumberVector->reserve(sizeVector);
     for (G4int i = 0; i < sizeVector; i++)
@@ -152,9 +146,9 @@ void G4IAEAphspWriter::BeginOfRunAction(const G4Run* aRun)
     {
         // Set the source ID and file name in a unique way
         std::stringstream sstr;
-        sstr << (*theZStopVector)[ii];
-        G4String zStopID(sstr.str());
-        G4String fullName = theFileName + "_" + zStopID;
+        sstr << (*theRStopVector)[ii];
+        G4String RStopID(sstr.str());
+        G4String fullName = theFileName + "_" + RStopID;
 
         // This part is only added when running several runs
         // during the simulation.
@@ -179,9 +173,9 @@ void G4IAEAphspWriter::BeginOfRunAction(const G4Run* aRun)
         // Set the global information and options.
 
         // Set constant Z
-        IAEA_I32 varIdx = 2;  // 0=x, 1=y, 2=z, 3=u, 4=v, 5=w, 6=wt
-        IAEA_Float varValue = static_cast<IAEA_Float>((*theZStopVector)[ii]/cm);
-        iaea_set_constant_variable(&id, &varIdx, &varValue);
+        //        IAEA_I32 varIdx = 2;  // 0=x, 1=y, 2=z, 3=u, 4=v, 5=w, 6=wt
+        //        IAEA_Float varValue = static_cast<IAEA_Float>((*theRStopVector)[ii]/cm);
+        //        iaea_set_constant_variable(&id, &varIdx, &varValue);
 
         // Number of original histories
         iaea_set_total_original_particles(&id, &nEvts);
@@ -225,7 +219,7 @@ void G4IAEAphspWriter::BeginOfEventAction(const G4Event*)
 //================================================================
 void G4IAEAphspWriter::UpdateHeaders()
 {
-    G4int size = theZStopVector->size();
+    G4int size = theRStopVector->size();
     IAEA_I32 result;
     for (G4int ii = 0; ii < size; ii++)
     {
@@ -260,40 +254,41 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
     G4double presphere = sqrt(pow(preZ,2)+pow(preY,2)+pow(preX,2));
 
     G4int i = 0;
-    G4int size = theZStopVector->size();
-    G4double r = (*theZStopVector)[i];
-    while ((pow(postZ,2)+pow(postY,2)+pow(postX,2))>= pow(r,2)/*zStop*/ && i < size)
+    G4int size = theRStopVector->size();
+    G4double rStop = (*theRStopVector)[i];
+
+    if ((aStep->GetTrack()->GetVolume()->GetName() == "NanoPartPhys")&&
+        (aStep->IsLastStepInVolume()) && (i < size))//&& (aStep->GetTrack()->GetParticleDefinition()->GetParticleName() == "proton"))
     {
-        if ((pow(preZ,2)+pow(preY,2)+pow(preX,2)) < pow(r,2))
+
+        // Check that this track has not crossed the
+        // i-th plane before.
+        G4int trackID = aStep->GetTrack()->GetTrackID();
+        // G4cout << "TrackID is " << trackID << G4endl;
+        std::set<G4int>::iterator it;
+        it = (*thePassingTracksVector)[i]->find(trackID);
+
+        if ( it == (*thePassingTracksVector)[i]->end() )
         {
-            // Check that this track has not crossed the
-            // i-th plane before.
-            G4int trackID = aStep->GetTrack()->GetTrackID();
-            std::set<G4int>::iterator it;
-            it = (*thePassingTracksVector)[i]->find(trackID);
+            // Not passed before, so store the particle.
+            StoreIAEAParticle(aStep, i);
+            (*theIncrNumberVector)[i] = 0; // reset this counter
 
-            if ( it == (*thePassingTracksVector)[i]->end() )
-            {
-                // Not passed before, so store the particle.
-                StoreIAEAParticle(aStep, i);
-                (*theIncrNumberVector)[i] = 0; // reset this counter
-
-                (*thePassingTracksVector)[i]->insert(trackID);
-            }
+            (*thePassingTracksVector)[i]->insert(trackID);
         }
-        i++;
-        r = (*theZStopVector)[i];
     }
+    i++;
+    rStop = (*theRStopVector)[i];
 }
 
 
 //===============================================================================
 // void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, G4int zStopIdx)
 //===============================================================================
-void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int zStopIdx)
+void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopIdx)
 {
-    IAEA_I32 sourceID = static_cast<IAEA_I32>(zStopIdx+theFilesAlreadyOpen); // beware
-    G4double zStop = (*theZStopVector)[zStopIdx];
+    IAEA_I32 sourceID = static_cast<IAEA_I32>(StopIdx+theFilesAlreadyOpen); // beware
+    G4double RStop = (*theRStopVector)[StopIdx];
 
     // The particle type and kinetic energy
     // -------------------------------------
@@ -303,37 +298,6 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int zStopI
     G4double postE = aStep->GetPostStepPoint()->GetKineticEnergy();
     G4double preE = aStep->GetPreStepPoint()->GetKineticEnergy();
     IAEA_Float kinEnergyMeV;
-    G4double postZ = postR.z();
-    G4double preZ = preR.z();
-
-    switch(PDGCode)
-    {
-    case 22:
-        partType = 1;  // gamma
-        kinEnergyMeV = static_cast<IAEA_Float>(preE/MeV);
-        break;
-    case 11:
-        partType = 2;  // electron
-        kinEnergyMeV = static_cast<IAEA_Float>( (preE+(postE-preE)*(zStop-preZ)/(postZ-preZ))/MeV );
-        break;
-    case -11:
-        partType = 3;  // positron
-        kinEnergyMeV = static_cast<IAEA_Float>( (preE+(postE-preE)*(zStop-preZ)/(postZ-preZ))/MeV );
-        break;
-    case 2112:
-        partType = 4;  // neutron
-        kinEnergyMeV = static_cast<IAEA_Float>(preE/MeV);
-        break;
-    case 2212:
-        partType = 5;  // proton
-        kinEnergyMeV = static_cast<IAEA_Float>( (preE+(postE-preE)*(zStop-preZ)/(postZ-preZ))/MeV );
-        break;
-    default:
-        G4String pname = aTrack->GetDefinition()->GetParticleName();
-        G4String errmsg = "'" + pname + "' is not supported by IAEA phsp format and will not be recorded.";
-        G4Exception("G4IAEAphspWriter::StoreIAEAParticle()",
-                    "IAEAwriter002", JustWarning, errmsg.c_str() );
-    }
 
     // Track weight
     IAEA_Float wt = static_cast<IAEA_Float>(aTrack->GetWeight());
@@ -343,20 +307,57 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int zStopI
     G4double preX = preR.x();
     G4double postY = postR.y();
     G4double preY = preR.y();
-    IAEA_Float x = static_cast<IAEA_Float>( (preX+(postX-preX)*(zStop-preZ)/(postZ-preZ))/cm );
-    IAEA_Float y = static_cast<IAEA_Float>( (preY+(postY-preY)*(zStop-preZ)/(postZ-preZ))/cm );
-    IAEA_Float z = static_cast<IAEA_Float>( zStop/cm );
+    G4double postZ = postR.z();
+    G4double preZ = preR.z();
 
     // Momentum direction
     G4ThreeVector momDir = aStep->GetPreStepPoint()->GetMomentumDirection();
+
+    IAEA_Float x = static_cast<IAEA_Float>(postX/cm);
+    IAEA_Float y = static_cast<IAEA_Float>(postY/cm);
+    IAEA_Float z = static_cast<IAEA_Float>(postZ/cm);
+
     IAEA_Float u = static_cast<IAEA_Float>(momDir.x());
     IAEA_Float v = static_cast<IAEA_Float>(momDir.y());
     IAEA_Float w = static_cast<IAEA_Float>(momDir.z());
 
+    switch(PDGCode)
+    {
+    case 22:
+        partType = 1;  // gamma
+        kinEnergyMeV = static_cast<IAEA_Float>(preE/MeV);
+        break;
+    case 11:
+        partType = 2;  // electron
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
+        break;
+    case -11:
+        partType = 3;  // positron
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
+        break;
+    case 2112:
+        partType = 4;  // neutron
+        kinEnergyMeV = static_cast<IAEA_Float>(preE/MeV);
+        break;
+    case 2212:
+        partType = 5;  // proton
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
+        break;
+    default:
+        G4String pname = aTrack->GetDefinition()->GetParticleName();
+        G4String errmsg = "'" + pname + "' is not supported by IAEA phsp format and will not be recorded.";
+        G4Exception("G4IAEAphspWriter::StoreIAEAParticle()",
+                    "IAEAwriter002", JustWarning, errmsg.c_str() );
+    }
+
     // Extra variables
     IAEA_Float extraFloat = -1; // no extra floats stored
-    IAEA_I32 extraInt = static_cast<IAEA_I32>((*theIncrNumberVector)[zStopIdx]);
+    IAEA_I32 extraInt = static_cast<IAEA_I32>((*theIncrNumberVector)[StopIdx]);
     IAEA_I32 nStat = extraInt;
+
+    std::ofstream outfile;
+    outfile.open("Write_Gold_Position.txt", std::ios_base::app);
+    outfile << x << " " << y << " " << z << "\n";
 
     // And finally store the particle following the IAEA routines
     iaea_write_particle(&sourceID, &nStat, &partType,
@@ -372,7 +373,7 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
 {
     // Close the IAEA files
 
-    G4int size = theZStopVector->size();
+    G4int size = theRStopVector->size();
     for (G4int ii = 0; ii < size; ii++)
     {
         const IAEA_I32 sourceID = static_cast<const IAEA_I32>(ii+theFilesAlreadyOpen);
@@ -388,7 +389,7 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
         iaea_destroy_source(&sourceID, &result);
         if (result > 0)
         {
-            G4cout << "Phase-space file at z = " << (*theZStopVector)[ii]/cm
+            G4cout << "Phase-space file at R = " << (*theRStopVector)[ii]/cm
                    << " cm closed successfully!"
                    << G4endl;
         }
@@ -401,7 +402,7 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
 
     // Clear the vectors at the end of the run
 
-    theZStopVector->clear();
+    theRStopVector->clear();
     theIncrNumberVector->clear();
 
     std::vector< std::set<G4int>* >::iterator is;
