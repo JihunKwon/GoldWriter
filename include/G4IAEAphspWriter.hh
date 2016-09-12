@@ -89,7 +89,7 @@ public:
   void UserSteppingAction(const G4Step*);
 
 private:
-  void StoreIAEAParticle(const G4Step* aStep, const G4int zStopIdx);
+  void StoreIAEAParticle(const G4Step* aStep, const G4int StopIdx);
 
 public:
   void SetZStop(G4double zstop);
@@ -115,6 +115,9 @@ private: // DATA MEMBERS
 
   std::vector<G4double>* theZStopVector;
   // Vector which stores the Zstops. They must be defined in the user code.
+
+  std::vector<G4double>* theRStopVector;
+  // Vector which stores the Rstops. They must be defined in the user code.
 
   static const G4int theAccessWrite = 2;
   // Value needed in the IAEA routines to open a source for writing.
