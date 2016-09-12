@@ -258,7 +258,7 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
     G4double rStop = (*theRStopVector)[i];
 
     if ((aStep->GetTrack()->GetVolume()->GetName() == "NanoPartPhys")&&
-        (aStep->IsLastStepInVolume()) && (i < size) && (aStep->GetTrack()->GetParticleDefinition()->GetParticleName() != "proton"))
+        (aStep->IsLastStepInVolume()) && (i < size))
     {
 
         // Check that this track has not crossed the
@@ -312,46 +312,10 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
 
     // Momentum direction
     G4ThreeVector momDir = aStep->GetPreStepPoint()->GetMomentumDirection();
-    G4double uG4 = momDir.x();
-    G4double vG4 = momDir.y();
-    G4double wG4 = momDir.z();
 
-    G4double lpreR = (uG4*preX)+(vG4*preY)+(wG4*preZ);
-    G4double square = lpreR*lpreR - (preX*preX + preY*preY + preZ*preZ)+(*theRStopVector)[StopIdx]*(*theRStopVector)[StopIdx];
-    G4double d1 = -lpreR + square;
-    G4double d2 = -lpreR - square;
-
-    G4double x1 = preX+uG4*d1;
-    G4double y1 = preY+vG4*d1;
-    G4double z1 = preZ+wG4*d1;
-
-    G4double x2 = preX+uG4*d1;
-    G4double y2 = preY+vG4*d1;
-    G4double z2 = preZ+wG4*d1;
-
-    G4double d = 0;
-    IAEA_Float x = 0;
-    IAEA_Float y = 0;
-    IAEA_Float z = 0;
-
-    if ((preX*preX+preY*preY+preZ*preZ) < (x1*x1+y1*y1+z1*z1) < (postX*postX+postY*postY+postZ*postZ))
-    {
-        d = d1;
-        x = static_cast<IAEA_Float>(x1/cm);
-        y = static_cast<IAEA_Float>(y1/cm);
-        z = static_cast<IAEA_Float>(z1/cm);
-    }
-    else if ((preX*preX+preY*preY+preZ*preZ) < (x2*x2+y2*y2+z2*z2) < (postX*postX+postY*postY+postZ*postZ))
-    {
-        d = d2;
-        x = static_cast<IAEA_Float>(x2/cm);
-        y = static_cast<IAEA_Float>(y2/cm);
-        z = static_cast<IAEA_Float>(z2/cm);
-    }
-
-    x = static_cast<IAEA_Float>(postX/cm);
-    y = static_cast<IAEA_Float>(postY/cm);
-    z = static_cast<IAEA_Float>(postZ/cm);
+    IAEA_Float x = static_cast<IAEA_Float>(postX/cm);
+    IAEA_Float y = static_cast<IAEA_Float>(postY/cm);
+    IAEA_Float z = static_cast<IAEA_Float>(postZ/cm);
 
     IAEA_Float u = static_cast<IAEA_Float>(momDir.x());
     IAEA_Float v = static_cast<IAEA_Float>(momDir.y());
@@ -365,15 +329,11 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
         break;
     case 11:
         partType = 2;  // electron
-        kinEnergyMeV = static_cast<IAEA_Float>((preE+(postE-preE)*d/sqrt(pow(postZ-preZ,2)+
-                                                                         pow(postY-preY,2)+
-                                                                         pow(postZ-preZ,2)))/MeV);
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
         break;
     case -11:
         partType = 3;  // positron
-        kinEnergyMeV = static_cast<IAEA_Float>( (preE+(postE-preE)*d/sqrt(pow(postZ-preZ,2)+
-                                                                          pow(postY-preY,2)+
-                                                                          pow(postZ-preZ,2)))/MeV);
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
         break;
     case 2112:
         partType = 4;  // neutron
@@ -381,9 +341,7 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
         break;
     case 2212:
         partType = 5;  // proton
-        kinEnergyMeV = static_cast<IAEA_Float>( (preE+(postE-preE)*abs(d)/sqrt(pow(postZ-preZ,2)+
-                                                                               pow(postY-preY,2)+
-                                                                               pow(postZ-preZ,2)))/MeV );
+        kinEnergyMeV = static_cast<IAEA_Float>(aStep->GetPostStepPoint()->GetKineticEnergy()/MeV);
         break;
     default:
         G4String pname = aTrack->GetDefinition()->GetParticleName();
@@ -400,8 +358,6 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
     std::ofstream outfile;
     outfile.open("Write_Gold_Position.txt", std::ios_base::app);
     outfile << x << " " << y << " " << z << "\n";
-
-    G4cout << u << " " << v << " " << w << G4endl;
 
     // And finally store the particle following the IAEA routines
     iaea_write_particle(&sourceID, &nStat, &partType,
