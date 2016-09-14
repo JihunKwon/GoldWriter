@@ -14,18 +14,18 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
 //    Source->SetParticleMomentumDirection(G4ThreeVector(0,0,1));
 //    Source->SetParticlePosition(G4ThreeVector(0,0,-2*mm));
         CircleSource = new G4SingleParticleSource;
-        CircleSource->SetParticleDefinition(G4Proton::Definition());
+        CircleSource->SetParticleDefinition(G4Gamma::Definition());
 
         G4SPSEneDistribution* energy = CircleSource->GetEneDist();
         //energy->SetEnergyDisType("Gauss");
         //energy->SetBeamSigmaInE(0 *MeV);
-        energy->SetMonoEnergy(10*MeV);
+        energy->SetMonoEnergy(40*keV);
 
         G4SPSPosDistribution* position = CircleSource->GetPosDist();
         position->SetPosDisType("Plane");
         position->SetPosDisShape("Circle");
         position->SetRadius(10*nm);
-        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -1*cm));
+        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -1*um));
 
         G4SPSAngDistribution* angular = CircleSource->GetAngDist();
         // angular->SetAngDistType("user");

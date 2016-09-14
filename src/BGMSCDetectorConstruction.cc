@@ -20,11 +20,18 @@
 #include "G4RunManager.hh"
 #include "G4VSolid.hh"
 #include "G4Sphere.hh"
+#include "G4UserLimits.hh"
 
 using namespace CLHEP;
 
 BGMSCDetectorConstruction::BGMSCDetectorConstruction()
+:fStepLimit(NULL)
 {}
+
+//BGMSCDetectorConstruction::~BGMSCDetectorConstruction()
+//{
+//  delete fStepLimit;
+//}
 
 G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
 {
@@ -41,10 +48,11 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     G4NistManager* nistManager = G4NistManager::Instance();
     G4Material* Au = nistManager->FindOrBuildMaterial("G4_Au");
     G4Material* vacuum = nistManager->FindOrBuildMaterial("G4_Galactic");
+    G4Material* water = nistManager->FindOrBuildMaterial("G4_WATER");
 
     // World
-    G4Box* world = new G4Box("World", 3*m, 3*m, 3*m);
-    G4LogicalVolume *worldLogic = new G4LogicalVolume(world, vacuum, "WorldLogic");
+    G4Box* world = new G4Box("World", 1*um, 1*um, 1*um);
+    G4LogicalVolume *worldLogic = new G4LogicalVolume(world, water, "WorldLogic");
     G4VPhysicalVolume *worldPhys = new G4PVPlacement(0, G4ThreeVector(), worldLogic, "WorldPhys", 0, false, 0);
     worldLogic->SetVisAttributes(visAttributes);
 
@@ -53,10 +61,23 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), nanoPartLogic, "NanoPartPhys", worldLogic, 0, 0);
     nanoPartLogic->SetVisAttributes(visAttributes);
 
-    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
-    G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
-    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
-    testLogic->SetVisAttributes(visAttributes);
+//    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
+//    G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
+//    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
+//    testLogic->SetVisAttributes(visAttributes);
+
+    // User Limits
+    // Sets a max step length in the tracker region, with G4StepLimiter
+    G4double maxStep = 5*nm;
+    fStepLimit = new G4UserLimits(maxStep);
+    nanoPartLogic->SetUserLimits(fStepLimit);
 
     return worldPhys;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void BGMSCDetectorConstruction::SetMaxStep(G4double maxStep)
+{
+    if ((fStepLimit)&&(maxStep>0.)) fStepLimit->SetMaxAllowedStep(maxStep);
 }
