@@ -28,6 +28,7 @@
 #include "G4EmLivermorePhysics.hh"
 #include "G4EmLowEPPhysics.hh"
 #include "G4EmPenelopePhysics.hh"
+#include "G4StepLimiterPhysics.hh"
 
 using namespace CLHEP;
 
@@ -58,6 +59,7 @@ BGMSCPhysicsList::BGMSCPhysicsList() : G4VModularPhysicsList()
 
   //RegisterPhysics(new G4StepLimit)
   RegisterPhysics(new G4EmPenelopePhysics);
+  RegisterPhysics(new G4StepLimiterPhysics);
   // RegisterPhysics(new PhysListEmStandardSingleSc);
   RegisterPhysics(new G4HadronPhysicsQGSP_BIC);
   RegisterPhysics(new G4EmExtraPhysics);

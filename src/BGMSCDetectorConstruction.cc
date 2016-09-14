@@ -25,7 +25,7 @@
 using namespace CLHEP;
 
 BGMSCDetectorConstruction::BGMSCDetectorConstruction()
-:fStepLimit(NULL)
+    :fStepLimit(NULL)
 {}
 
 //BGMSCDetectorConstruction::~BGMSCDetectorConstruction()
@@ -61,13 +61,11 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), nanoPartLogic, "NanoPartPhys", worldLogic, 0, 0);
     nanoPartLogic->SetVisAttributes(visAttributes);
 
-//    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
-//    G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
-//    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
-//    testLogic->SetVisAttributes(visAttributes);
+    //    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
+    //    G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
+    //    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
+    //    testLogic->SetVisAttributes(visAttributes);
 
-    // User Limits
-    // Sets a max step length in the tracker region, with G4StepLimiter
     G4double maxStep = 5*nm;
     fStepLimit = new G4UserLimits(maxStep);
     nanoPartLogic->SetUserLimits(fStepLimit);
