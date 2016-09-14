@@ -19,7 +19,7 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
         G4SPSEneDistribution* energy = CircleSource->GetEneDist();
         //energy->SetEnergyDisType("Gauss");
         //energy->SetBeamSigmaInE(0 *MeV);
-        energy->SetMonoEnergy(40*keV);
+        energy->SetMonoEnergy(1*keV);
 
         G4SPSPosDistribution* position = CircleSource->GetPosDist();
         position->SetPosDisType("Plane");
