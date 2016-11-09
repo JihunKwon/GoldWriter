@@ -12,12 +12,19 @@ class BGMSCSteppingAction : public G4UserSteppingAction {
 
 public:
     BGMSCSteppingAction()
-    {}
+    {
+        i = 0;
+    }
 
     ~BGMSCSteppingAction()
-    {}
+    {
+        G4cout << "Number of ionization is " << i << G4endl;
+    }
 
     void UserSteppingAction(const G4Step* aStep);
+
+private:
+    G4int i;
 };
 
 #endif

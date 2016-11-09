@@ -51,7 +51,7 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     G4Material* water = nistManager->FindOrBuildMaterial("G4_WATER");
 
     // World
-    G4Box* world = new G4Box("World", 1*um, 1*um, 1*um);
+    G4Box* world = new G4Box("World", 100.*um, 100.*um, 100.*um);   //halfx=0.05um
     G4LogicalVolume *worldLogic = new G4LogicalVolume(world, water, "WorldLogic");
     G4VPhysicalVolume *worldPhys = new G4PVPlacement(0, G4ThreeVector(), worldLogic, "WorldPhys", 0, false, 0);
     worldLogic->SetVisAttributes(visAttributes);
@@ -66,7 +66,7 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     //    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
     //    testLogic->SetVisAttributes(visAttributes);
 
-    G4double maxStep = 5*nm;
+    G4double maxStep = 1*nm;
     fStepLimit = new G4UserLimits(maxStep);
     nanoPartLogic->SetUserLimits(fStepLimit);
 

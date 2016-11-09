@@ -19,13 +19,13 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
         G4SPSEneDistribution* energy = CircleSource->GetEneDist();
         //energy->SetEnergyDisType("Gauss");
         //energy->SetBeamSigmaInE(0 *MeV);
-        energy->SetMonoEnergy(1*keV);
+        energy->SetMonoEnergy(100*keV);
 
         G4SPSPosDistribution* position = CircleSource->GetPosDist();
         position->SetPosDisType("Plane");
         position->SetPosDisShape("Circle");
         position->SetRadius(10*nm);
-        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -1*um));
+        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -100*um));
 
         G4SPSAngDistribution* angular = CircleSource->GetAngDist();
         // angular->SetAngDistType("user");
