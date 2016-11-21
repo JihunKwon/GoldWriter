@@ -19,7 +19,7 @@ void BGMSCActionInitialization::BuildForMaster() const
 void BGMSCActionInitialization::Build() const
 {
     SetUserAction(new BGMSCPrimaryGeneratorAction);
-//    SetUserAction(new BGMSCEventAction);
-//    SetUserAction(new BGMSCSteppingAction);
-//    SetUserAction(new BGMSCRunAction);
+    SetUserAction(new BGMSCEventAction);
+    SetUserAction(new BGMSCSteppingAction);
+    SetUserAction(new BGMSCRunAction);
 }
