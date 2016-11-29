@@ -20,6 +20,8 @@ TARGET_LINK_LIBRARIES(BGMSC ${Geant4_LIBRARIES})
 
 set(BGMSC_SCRIPTS
     init_vis.mac
+    PSF_-125.IAEAheader
+    PSF_-125.IAEAphsp
 )
 
 foreach(_script ${BGMSC_SCRIPTS})

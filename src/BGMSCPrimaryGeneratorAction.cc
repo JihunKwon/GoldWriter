@@ -14,11 +14,12 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
 //    Source->SetParticleMomentumDirection(G4ThreeVector(0,0,1));
 //    Source->SetParticlePosition(G4ThreeVector(0,0,-2*mm));
 
-    G4String fileName = "PSF_-199"; //Set this to your phsp file
+    G4String fileName = "PSF_-125"; //Set this to your phsp file
     IAEAReader = new G4IAEAphspReader(fileName);
 
-    G4ThreeVector isoPos(-10.0*nm, 0*nm, 0*nm);
-    IAEAReader->SetIsocenterPosition(isoPos);
+    //G4ThreeVector isoPos(-10.0*nm, 0*nm, 0*nm);
+    //IAEAReader->SetIsocenterPosition(isoPos);
+    IAEAReader->SetGlobalPhspTranslation(G4ThreeVector(0, 0, 125*mm-10*nm));
     IAEAReader->SetTimesRecycled(0);
 
 //        CircleSource = new G4SingleParticleSource;
