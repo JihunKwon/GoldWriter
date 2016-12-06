@@ -93,7 +93,10 @@ G4IAEAphspWriter::G4IAEAphspWriter()
     theIncrNumberVector = new std::vector<G4int>;
     thePassingTracksVector = new std::vector< std::set<G4int>* >;
     theFilesAlreadyOpen = 0;
-    Energy[5] = {0};
+    //Energy[15] = {10};
+    for (int i = 0; i < 1000; i++){
+        Energy[i] = {0};
+    }
 }
 
 
@@ -265,8 +268,8 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
         G4int j;
 
 
-        for (int j = 0; j < 5; j++){
-            if ((300*j < eEnergy) && (eEnergy <= 300*(j+1)))
+        for (int j = 0; j < 1000; j++){
+            if ((10*j < eEnergy) && (eEnergy <= 10*(j+1)))
             {
                 Energy[j] = Energy[j] + 1;
                 break;
@@ -322,6 +325,9 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
     G4double postZ = postR.z();
     G4double preZ = preR.z();
 
+    // Energy
+    G4double eEnergy = aStep->GetPostStepPoint()->GetKineticEnergy()/keV;
+
     // Momentum direction
     G4ThreeVector momDir = aStep->GetPreStepPoint()->GetMomentumDirection();
 
@@ -367,9 +373,18 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
     IAEA_I32 extraInt = static_cast<IAEA_I32>((*theIncrNumberVector)[StopIdx]);
     IAEA_I32 nStat = extraInt;
 
-//    std::ofstream outfile;
-//    outfile.open("Write_Gold_Position.txt", std::ios_base::app);
-//    outfile << x << " " << y << " " << z << "\n";
+//    std::ofstream WriteAllData;
+//    WriteAllData.open("Energy_Position_Vector.txt", std::ios_base::app);
+//    WriteAllData << eEnergy << " " << x << " " << y << " " << z << " "  << u << " " << v << " " << w << "\n";
+
+//    std::ofstream WritePosition;
+//    WritePosition.open("Write_Gold_Position.txt", std::ios_base::app);
+//    WritePosition << x << " " << y << " " << z << "\n";
+
+//    std::ofstream WriteVector;
+//    WriteVector.open("Write_Gold_Vector.txt", std::ios_base::app);
+//    WriteVector << u << " " << v << " " << w << "\n";
+
 
     // And finally store the particle following the IAEA routines
     iaea_write_particle(&sourceID, &nStat, &partType,
@@ -425,7 +440,7 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
     thePassingTracksVector->clear();
 
     std::ofstream WriteEnergy("Electron_EnergyDistribution.txt");
-    for (int k = 0; k < 5; k++){
+    for (int k = 0; k < 1000; k++){
         WriteEnergy << k << " " << Energy[k] << "\n";
     }
 }
