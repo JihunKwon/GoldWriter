@@ -146,6 +146,8 @@ private: // DATA MEMBERS
   // Current pre- and post-step points
   G4double Raduis;
 
+  G4int Energy[5];
+
 };
 
 #endif

@@ -23,18 +23,18 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
     IAEAReader->SetTimesRecycled(0);
 
 //        CircleSource = new G4SingleParticleSource;
-//        CircleSource->SetParticleDefinition(G4Gamma::Definition());
+//        CircleSource->SetParticleDefinition(G4Proton::Definition());
 
 //        G4SPSEneDistribution* energy = CircleSource->GetEneDist();
 //        //energy->SetEnergyDisType("Gauss");
 //        //energy->SetBeamSigmaInE(0 *MeV);
-//        energy->SetMonoEnergy(100*keV);
+//        energy->SetMonoEnergy(10*MeV);
 
 //        G4SPSPosDistribution* position = CircleSource->GetPosDist();
 //        position->SetPosDisType("Plane");
 //        position->SetPosDisShape("Circle");
-//        position->SetRadius(10*nm);
-//        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -100*um));
+//        position->SetRadius(25*nm);
+//        position->SetCentreCoords(G4ThreeVector(0*m, 0*m,  -25*nm));
 
 //        G4SPSAngDistribution* angular = CircleSource->GetAngDist();
 //        // angular->SetAngDistType("user");
@@ -47,18 +47,18 @@ BGMSCPrimaryGeneratorAction::BGMSCPrimaryGeneratorAction()
 
 BGMSCPrimaryGeneratorAction::~BGMSCPrimaryGeneratorAction()
 {
-  //  delete CircleSource;
-  //  delete Source;
+//    delete CircleSource;
+//  //  delete Source;
     if (IAEAReader)
         delete IAEAReader;
 }
 
 void BGMSCPrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
-   // CircleSource->SetNumberOfParticles(3);
-   //  Source->GeneratePrimaryVertex(event);
-//
-        //CircleSource->GeneratePrimaryVertex(event);
+//    CircleSource->SetNumberOfParticles(3);
+////     Source->GeneratePrimaryVertex(event);
+
+//        CircleSource->GeneratePrimaryVertex(event);
     IAEAReader->GeneratePrimaryVertex(event);
     std::vector<G4ThreeVector>* pos = IAEAReader->GetPositionVector();
     G4ThreeVector position = (*pos)[0];

@@ -93,6 +93,7 @@ G4IAEAphspWriter::G4IAEAphspWriter()
     theIncrNumberVector = new std::vector<G4int>;
     thePassingTracksVector = new std::vector< std::set<G4int>* >;
     theFilesAlreadyOpen = 0;
+    Energy[5] = {0};
 }
 
 
@@ -260,6 +261,17 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
     if ((aStep->GetTrack()->GetVolume()->GetName() == "NanoPartPhys")&&
         (aStep->IsLastStepInVolume()) && (i < size)&& (aStep->GetTrack()->GetParticleDefinition()->GetParticleName() == "e-"))
     {
+        G4double eEnergy = aStep->GetPostStepPoint()->GetKineticEnergy()/keV;
+        G4int j;
+
+
+        for (int j = 0; j < 5; j++){
+            if ((300*j < eEnergy) && (eEnergy <= 300*(j+1)))
+            {
+                Energy[j] = Energy[j] + 1;
+                break;
+            }
+        }
 
         // Check that this track has not crossed the
         // i-th plane before.
@@ -411,4 +423,9 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
         delete (*is);
 
     thePassingTracksVector->clear();
+
+    std::ofstream WriteEnergy("Electron_EnergyDistribution.txt");
+    for (int k = 0; k < 5; k++){
+        WriteEnergy << k << " " << Energy[k] << "\n";
+    }
 }
