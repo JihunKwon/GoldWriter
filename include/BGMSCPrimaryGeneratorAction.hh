@@ -22,8 +22,8 @@ public:
 
 private:
 ////     G4ParticleGun* Source;
-    G4IAEAphspReader* IAEAReader;
-//     G4SingleParticleSource* CircleSource;
+//    G4IAEAphspReader* IAEAReader;
+     G4SingleParticleSource* CircleSource;
 };
 
 #endif

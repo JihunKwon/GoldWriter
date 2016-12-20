@@ -30,6 +30,8 @@
 #include "G4EmPenelopePhysics.hh"
 #include "G4StepLimiterPhysics.hh"
 
+#include "G4UAtomicDeexcitation.hh"
+
 using namespace CLHEP;
 
 BGMSCPhysicsList::BGMSCPhysicsList() : G4VModularPhysicsList()
@@ -75,6 +77,14 @@ BGMSCPhysicsList::~BGMSCPhysicsList()
 void BGMSCPhysicsList::ConstructProcess()
 {
     G4VModularPhysicsList::ConstructProcess();
+
+    //Deexcitation
+    G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+    de->SetFluo(true);
+    de->SetAuger(true);
+    de->SetPIXE(true);
+    de->SetAugerCascade(true);
+    G4LossTableManager::Instance()->SetAtomDeexcitation(de);
 }
 
 //void PhysicsLists::AddP
@@ -86,5 +96,6 @@ void BGMSCPhysicsList::SetCuts()
     SetCutValue(cutForGamma, "gamma");
     SetCutValue(cutForElectron, "e-");
     SetCutValue(cutForPositron, "e+");
-}
 
+    G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(250*eV, 1*GeV);
+}

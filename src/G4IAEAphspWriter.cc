@@ -83,7 +83,7 @@ G4IAEAphspWriter * G4IAEAphspWriter::GetInstance()
 #include <sstream>
 #include <vector>
 #include <math.h>
-
+#define pi  3.14159265358979323846
 
 
 G4IAEAphspWriter::G4IAEAphspWriter()
@@ -94,8 +94,11 @@ G4IAEAphspWriter::G4IAEAphspWriter()
     thePassingTracksVector = new std::vector< std::set<G4int>* >;
     theFilesAlreadyOpen = 0;
     //Energy[15] = {10};
-    for (int i = 0; i < 1000; i++){
+    for (int i = 0; i < 2500; i++){
         Energy[i] = {0};
+    }
+    for (int i = 0; i <= 180; i++){
+        Angle[i] = {0};
     }
 }
 
@@ -267,14 +270,61 @@ void G4IAEAphspWriter::UserSteppingAction(const G4Step* aStep)
         G4double eEnergy = aStep->GetPostStepPoint()->GetKineticEnergy()/keV;
         G4int j;
 
-
-        for (int j = 0; j < 1000; j++){
-            if ((10*j < eEnergy) && (eEnergy <= 10*(j+1)))
+        for (int j = 0; j < 2500; j++){
+            if ((0.1*j < eEnergy) && (eEnergy <= 0.1*(j+1)))
             {
                 Energy[j] = Energy[j] + 1;
                 break;
             }
         }
+
+        //G4double eAngle = aStep->GetPostStepPoint()->GetPosition()/nm;
+//        G4int k;
+
+//        for (int k = -10; k < 10; k++){
+//            if ((0.000001*k < postZ) && (postZ <= 0.000001*(k+1)))  // if ((k/nm < postZ) && (postZ <= (k/nm+1)))
+//            {
+//                Angle[k] = Angle[k] + 1;
+//                break;
+//            }
+//        }
+        //G4double ang1 = atan2(-6.44,2.53)*(180.0/3.1415);
+//        G4double ang1 = radian*(180./3.1415926535);
+//        postZ = -0.0000000001;
+        G4double ang = (atan (postX/postZ)*(180.0/pi));   //atan (postX / postZ)   atan2(postX, postZ)
+        if (ang < 0)
+        {
+            ang = ang * (-1);
+        }
+
+        //ang = 180.0;
+        G4int theta;
+
+        if (postZ >= 0){
+            for (int theta = 0; theta <= 90; theta++)
+            {
+                if ((theta < ang) && (ang <= (theta+1)))
+                {
+                    Angle[theta] = Angle[theta] + 1;
+                    break;
+                }
+            }
+
+        }
+
+
+
+        if (postZ < 0){
+            for (int theta = 0; theta <= 90; theta++)
+            {
+                if ((theta <= ang) && (ang < (theta+1)))
+                {
+                    Angle[180-theta] = Angle[180-theta] + 1;
+                    break;
+                }
+            }
+        }
+
 
         // Check that this track has not crossed the
         // i-th plane before.
@@ -381,6 +431,11 @@ void G4IAEAphspWriter::StoreIAEAParticle(const G4Step* aStep, const G4int StopId
 //    WritePosition.open("Write_Gold_Position.txt", std::ios_base::app);
 //    WritePosition << x << " " << y << " " << z << "\n";
 
+    std::ofstream WriteAngle("Write_ScatteringAngle.txt");
+    for (int k = 0; k <= 180; k++){
+        WriteAngle << k << " " << Angle[k] << "\n";
+    }
+
 //    std::ofstream WriteVector;
 //    WriteVector.open("Write_Gold_Vector.txt", std::ios_base::app);
 //    WriteVector << u << " " << v << " " << w << "\n";
@@ -440,7 +495,7 @@ void G4IAEAphspWriter::EndOfRunAction(const G4Run* )
     thePassingTracksVector->clear();
 
     std::ofstream WriteEnergy("Electron_EnergyDistribution.txt");
-    for (int k = 0; k < 1000; k++){
+    for (int k = 0; k < 2500; k++){
         WriteEnergy << k << " " << Energy[k] << "\n";
     }
 }

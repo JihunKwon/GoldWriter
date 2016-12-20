@@ -51,7 +51,7 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     G4Material* water = nistManager->FindOrBuildMaterial("G4_WATER");
 
     // World
-    G4Box* world = new G4Box("World", 100.*um, 100.*um, 100.*um);   //halfx=0.05um
+    G4Box* world = new G4Box("World", 1.*um, 1.*um, 1.*um);   //halfx=0.05um
     G4LogicalVolume *worldLogic = new G4LogicalVolume(world, water, "WorldLogic");
     G4VPhysicalVolume *worldPhys = new G4PVPlacement(0, G4ThreeVector(), worldLogic, "WorldPhys", 0, false, 0);
     worldLogic->SetVisAttributes(visAttributes);
@@ -59,12 +59,21 @@ G4VPhysicalVolume* BGMSCDetectorConstruction::Construct()
     G4Sphere *nanoPart = new G4Sphere("NanoPart", 0, 10*nm, 0*deg, 360*deg, 0*deg, 180*deg);
     G4LogicalVolume *nanoPartLogic = new G4LogicalVolume(nanoPart, Au, "NanoPartLogic");
     new G4PVPlacement(0, G4ThreeVector(0, 0, 0), nanoPartLogic, "NanoPartPhys", worldLogic, 0, 0);
+    //visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
     nanoPartLogic->SetVisAttributes(visAttributes);
 
-    //    G4Box* test = new G4Box("test", 3*m, 3*m, 0.1*mm);
-    //    G4LogicalVolume *testLogic = new G4LogicalVolume(test, vacuum, "testLogic");
-    //    G4VPhysicalVolume *testPhys = new G4PVPlacement(0, G4ThreeVector(0, 0, -1*mm), testLogic, "testPhys", worldLogic, false, 0);
-    //    testLogic->SetVisAttributes(visAttributes);
+//    // Pseudo disc source
+//    G4Tubs* DiscSource = new G4Tubs("DiscSource", 0, 10*nm, 1.0*nm, 0*deg, 360*deg);
+//    G4LogicalVolume *DiscSourceLogic = new G4LogicalVolume(DiscSource, vacuum, "DiscSourceLogic");
+//    new G4PVPlacement(0, G4ThreeVector(0, 0, -11*nm), DiscSourceLogic,"DiscSourcePhys", worldLogic, 0, 0);
+//    DiscSourceLogic->SetVisAttributes(visAttributes);
+
+//    // Bystander GNP
+//    G4Sphere *nanoPart2 = new G4Sphere("NanoPart2", 0, 10*nm, 0*deg, 360*deg, 0*deg, 180*deg);
+//    G4LogicalVolume *nanoPart2Logic = new G4LogicalVolume(nanoPart2, Au, "NanoPart2Logic");
+//    new G4PVPlacement(0, G4ThreeVector(0, 0, 30*nm), nanoPart2Logic, "NanoPart2Phys", worldLogic, 0, 0);
+//    //visAttributes = new G4VisAttributes(G4Colour(1.0, 1.0, 0.0));
+//    nanoPart2Logic->SetVisAttributes(visAttributes);
 
     G4double maxStep = 1*nm;
     fStepLimit = new G4UserLimits(maxStep);
